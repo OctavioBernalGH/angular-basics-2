@@ -18,8 +18,9 @@ export class TaskService {
   private tasksSignal = signal<Task[]>([]);
 
   /**
-   * Lo definimos como solo lectura para que
-   * sea inmutable
+   * Lo definimos como solo solo lectura para
+   * mantenerlo encapsulado y evitar el acceso
+   * indebido de otros componentes
    */
   tasks = this.tasksSignal.asReadonly();
 
@@ -41,9 +42,9 @@ export class TaskService {
    * que se trae las task que hayan en el local storage
    * y las parsea en formato json
    */
-  constructor(){
+  constructor() {
     const saved = localStorage.getItem('tasks');
-    if(saved){
+    if (saved) {
       this.tasksSignal.set(JSON.parse(saved));
     }
   }
@@ -55,26 +56,37 @@ export class TaskService {
    * los cambios en local storage
    * @param title 
    */
-  addTask(title: string){
-    const newTask: Task = { id: crypto.randomUUID(), title, completed: false};
+  addTask(title: string) {
+    const newTask: Task = { id: crypto.randomUUID(), title, completed: false };
     this.tasksSignal.update(t => [...t, newTask]);
     this.save();
   }
 
   /**
-   * Mediante el ID filtramos con map en el array de
-   * task, y actualizamos el valor de la task, una vez
-   * actualizado, guardamos en localStorage
+   * Mediante el ID y la función map del array de task
+   * actualizamnos el estado mediante la negación del anterior
+   * y guardamos sobre localStorage
    * @param id 
    */
-  toggleTask(id: string){
+  toggleTask(id: string) {
     this.tasksSignal.update(t => t.map(task =>
       task.id === id ? { ...task, completed: !task.completed } : task
     ));
     this.save();
   }
 
-  private save(){
+  /**
+     * Elimina una tarea del estado.
+     * Utilizamos filter para crear un nuevo array que contenga
+     * todas las tareas EXCEPTO la que coincide con el ID pasado.
+     * @param id 
+     */
+  deleteTask(id: string) {
+    this.tasksSignal.update(tasks => tasks.filter(task => task.id !== id));
+    this.save();
+  }
+
+  private save() {
     localStorage.setItem('tasks', JSON.stringify(this.tasksSignal()));
   }
 }

@@ -1,0 +1,20 @@
+<div class="mt-6 space-y-4">
+    @for (task of taskService.tasks(); track task.id) {
+    <div class="flex items-center justify-between p-4 bg-slate-800 rounded-lg border border-slate-700 shadow-sm">
+        <div class="flex items-center gap-3">
+            <input type="checkbox" [checked]="task.completed" (change)="taskService.toggleTask(task.id)"
+                class="w-5 h-5 accent-blue-500 cursor-pointer">
+            <span [class.line-through]="task.completed" [class.text-slate-500]="task.completed"
+                class="text-white text-lg">
+                {{ task.title }}
+            </span>
+        </div>
+
+        <button (click)="taskService.deleteTask(task.id)" class="text-red-400 hover:text-red-300 transition-colors p-2">
+            Eliminar
+        </button>
+    </div>
+    } @empty {
+    <p class="text-center text-slate-500 mt-10">No hay tareas pendientes. ¡Buen trabajo!</p>
+    }
+</div>
